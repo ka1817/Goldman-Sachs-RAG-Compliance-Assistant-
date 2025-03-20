@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: 🧪 Run Tests (No Backend)
+    name: 🧪 Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -27,8 +27,13 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🧪 Run Tests (Only GET Requests)
+      - name: 🔧 Set Python Path
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+
+      - name: 🧪 Run Tests
         run: pytest tests/
+        env:
+          PYTHONPATH: "${{ github.workspace }}"
 
   docker_build:
     name: 🏗 Build & Push Docker Images
