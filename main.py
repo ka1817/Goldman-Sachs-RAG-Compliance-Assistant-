@@ -11,7 +11,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
 from sentence_transformers import CrossEncoder
-from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import RetrievalQA
 from langchain.schema import Document
 from typing import List
 
@@ -112,7 +112,7 @@ rag_prompt = PromptTemplate(
     Answer:
     """
 )
-qa_chain = load_qa_chain(llm, chain_type="stuff")
+qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=hybrid_retriever, chain_type="stuff", return_source_documents=True)
 
 class RAGQuery(BaseModel):
     question: str
@@ -123,10 +123,10 @@ def home():
 
 @app.post("/predict")
 def predict(query: RAGQuery):
-    retrieved_docs = hybrid_retriever.get_relevant_documents(query.question)
+    retrieved_docs = hybrid_retriever.invoke(query.question)
     reranked_docs = rerank_documents(query.question, retrieved_docs)
-    final_answer = qa_chain.run(input_documents=reranked_docs, question=query.question)
-    return {"answer": final_answer}
+    result = qa_chain.invoke({"query": query.question, "context": reranked_docs})
+    return {"answer": result['result']}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host='0.0.0.0', port=5000)
+    uvicorn.run(app, host='localhost', port=5000)

@@ -1,27 +1,26 @@
-# Ignore Python cache and compiled files
+# Ignore virtual environments and dependencies
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Ignore virtual environments
-venv/
-.env  # Ignore local environment variables
-
-# Ignore logs and temporary files
-logs/
+# Ignore local environment files
+.env
 *.log
 
-
-# Ignore Git-related files
+# Ignore version control files
 .git/
 .gitignore
 
-# Ignore OS-specific files
+# Ignore editor and system files
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
-# Ignore unused Research folder
-Research/
 
+# Ignore Streamlit and other cache files
+.streamlit/
+Research/
 
