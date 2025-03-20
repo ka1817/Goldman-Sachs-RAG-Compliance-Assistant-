@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - ./faiss_index:/app/faiss_index
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    restart: always
