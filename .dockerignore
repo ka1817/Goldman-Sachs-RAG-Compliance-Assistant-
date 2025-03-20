@@ -12,9 +12,6 @@ venv/
 logs/
 *.log
 
-# Ignore FAISS index if rebuilt inside the container (optional)
-faiss_index/
-data/
 
 # Ignore Git-related files
 .git/
