@@ -9,9 +9,6 @@ services:
       - "5000:5000"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
-    volumes:
-      - ./data:/app/data
-      - ./faiss_index:/app/faiss_index
 
   frontend:
     build:
