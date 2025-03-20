@@ -21,7 +21,6 @@ st.sidebar.markdown(
     """
 )
 
-# Set backend URL dynamically
 BACKEND_URL = "http://backend:5000/predict"  # Works in Docker
 LOCAL_BACKEND_URL = "http://localhost:5000/predict"  # Works locally
 
@@ -38,7 +37,6 @@ if st.button("Get Answer 🚀"):
             st.success("✅ Answer:")
             st.write(response.json().get("answer", "No response received."))
         except Exception:
-            # If backend is not available in Docker, try localhost
             try:
                 response = requests.post(LOCAL_BACKEND_URL, json={"question": user_input}, timeout=10)
                 if response.status_code == 200:

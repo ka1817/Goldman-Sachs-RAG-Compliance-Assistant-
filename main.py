@@ -21,14 +21,12 @@ app = FastAPI(title="Intelligent Policy & Compliance Assistant: A RAG-Based Know
 load_dotenv()
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 
-data_folder = "data"  # ✅ Ensure this folder exists in your project
-faiss_index_path = "faiss_index"  # FAISS index path
+data_folder = "data"  
+faiss_index_path = "faiss_index"  
 
-# ✅ Ensure the directory exists
 if not os.path.exists(data_folder):
     os.makedirs(data_folder)
 
-# ✅ Check if FAISS index exists
 if os.path.exists(faiss_index_path):
     print("✅ Loading existing FAISS index...")
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
@@ -54,7 +52,7 @@ else:
 
     print("✅ New FAISS index created!")
 
-# Load documents and split into chunks (even if FAISS already exists, for BM25)
+# Load documents and split into chunks 
 loader = DirectoryLoader(data_folder, glob="*.pdf", loader_cls=PyPDFLoader)
 documents = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
