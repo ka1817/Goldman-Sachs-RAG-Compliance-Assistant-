@@ -1,18 +1,30 @@
+# Ignore Python cache and compiled files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
+# Ignore virtual environments
 venv/
+.env  # Ignore local environment variables
 
-
+# Ignore logs and temporary files
 logs/
 *.log
 
+# Ignore FAISS index if rebuilt inside the container (optional)
+faiss_index/
+data/
 
-
+# Ignore Git-related files
 .git/
 .gitignore
 
+# Ignore OS-specific files
 .DS_Store
 Thumbs.db
+
+# Ignore unused Research folder
+Research/
+
+

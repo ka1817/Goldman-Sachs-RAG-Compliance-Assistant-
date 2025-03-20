@@ -2,22 +2,19 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: .
-      dockerfile: backend.Dockerfile
+    image: ${DOCKER_USERNAME}/rag-backend1:latest
     ports:
       - "5000:5000"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
-      - ./data:/app/data
-      - ./faiss_index:/app/faiss_index
+      - ./data:/app/data  # Persist PDF files
+      - ./faiss_index:/app/faiss_index  # Persist FAISS index
+    command: ["sh", "-c", "python3 main.py && uvicorn main:app --host 0.0.0.0 --port 5000"]
     restart: always
 
   frontend:
-    build:
-      context: .
-      dockerfile: frontend.Dockerfile
+    image: ${DOCKER_USERNAME}/rag-frontend1:latest
     ports:
       - "8501:8501"
     depends_on:

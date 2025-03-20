@@ -15,23 +15,28 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.schema import Document
 from typing import List
 
-app = FastAPI(title="Intelligent Policy & Compliance Assistant: A RAG-Based Knowledge System for Goldman Sachs")
+app = FastAPI(title="Intelligent Policy & Compliance Assistant")
 
 # Load environment variables
 load_dotenv()
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 
-data_folder = "data"  
-faiss_index_path = "faiss_index"  
+# Define paths
+data_folder = "data"
+faiss_index_folder = "faiss_index"
+faiss_index_path = os.path.join(faiss_index_folder, "index.faiss")
 
-if not os.path.exists(data_folder):
-    os.makedirs(data_folder)
+# Ensure necessary directories exist
+os.makedirs(data_folder, exist_ok=True)
+os.makedirs(faiss_index_folder, exist_ok=True)
 
+# Load embeddings
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+
+# Load or create FAISS index
 if os.path.exists(faiss_index_path):
     print("✅ Loading existing FAISS index...")
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-    faiss_index = FAISS.load_local(faiss_index_path, embeddings, allow_dangerous_deserialization=True)
-    print("✅ FAISS index ready!")
+    faiss_index = FAISS.load_local(faiss_index_folder, embeddings, allow_dangerous_deserialization=True)
 else:
     print("⚠️ No FAISS index found! Rebuilding FAISS index...")
 
@@ -39,18 +44,18 @@ else:
     loader = DirectoryLoader(data_folder, glob="*.pdf", loader_cls=PyPDFLoader)
     documents = loader.load()
 
-    # Split documents into chunks
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
-    chunks = text_splitter.split_documents(documents)
+    if documents:
+        # Split documents into chunks
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+        chunks = text_splitter.split_documents(documents)
 
-    # Generate embeddings
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+        # Create and save FAISS index
+        faiss_index = FAISS.from_documents(chunks, embeddings)
+        faiss_index.save_local(faiss_index_folder)
 
-    # Create and save FAISS index
-    faiss_index = FAISS.from_documents(chunks, embeddings)
-    faiss_index.save_local(faiss_index_path)
-
-    print("✅ New FAISS index created!")
+        print("✅ New FAISS index created!")
+    else:
+        print("⚠️ No documents found. FAISS index not created!")
 
 # Load documents and split into chunks 
 loader = DirectoryLoader(data_folder, glob="*.pdf", loader_cls=PyPDFLoader)
@@ -59,21 +64,13 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=20
 chunks = text_splitter.split_documents(documents)
 
 # ✅ Initialize BM25 Retriever from chunks
-if chunks:
-    bm25_retriever = BM25Retriever.from_documents(chunks)
-    print("✅ BM25 Retriever Ready!")
-else:
-    bm25_retriever = None
-    print("⚠️ No documents found! BM25 retriever will be skipped.")
+bm25_retriever = BM25Retriever.from_documents(chunks) if chunks else None
 
 # ✅ Initialize dense retriever
 retriever_dense = faiss_index.as_retriever(search_kwargs={"k": 10})
 
 # ✅ Hybrid Retriever (Dense + BM25)
-if bm25_retriever:
-    hybrid_retriever = EnsembleRetriever(retrievers=[retriever_dense, bm25_retriever], weights=[0.5, 0.5])
-else:
-    hybrid_retriever = retriever_dense  # Use only FAISS if no BM25
+hybrid_retriever = EnsembleRetriever(retrievers=[retriever_dense, bm25_retriever], weights=[0.5, 0.5]) if bm25_retriever else retriever_dense
 
 # ✅ Initialize reranker model
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-2-v2")
@@ -115,8 +112,6 @@ rag_prompt = PromptTemplate(
     Answer:
     """
 )
-print("✅ RAG Support Bot PromptTemplate Ready!")
-
 qa_chain = load_qa_chain(llm, chain_type="stuff")
 
 class RAGQuery(BaseModel):
