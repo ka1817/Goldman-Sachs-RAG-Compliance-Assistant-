@@ -118,7 +118,6 @@ rag_prompt = PromptTemplate(
 )
 print("✅ RAG Support Bot PromptTemplate Ready!")
 
-# ✅ Load QA Chain
 qa_chain = load_qa_chain(llm, chain_type="stuff")
 
 class RAGQuery(BaseModel):

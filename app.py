@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 
-# Streamlit Page Setup
 st.set_page_config(page_title="Goldman Sachs RAG Compliance Assistant", page_icon="📜", layout="wide")
 st.title("🤖 Goldman Sachs RAG-based Compliance Assistant")
 st.write("Ask about compliance policies, ethical trading, and more!")

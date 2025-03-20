@@ -23,17 +23,22 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set Environment Variables
+        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
+
       - name: Start Backend
         run: |
           uvicorn main:app --host 0.0.0.0 --port 8000 &
           sleep 5  # Wait for the backend to start
         env:
           PYTHONPATH: "${{ github.workspace }}"
+          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
 
       - name: Run Tests
         run: pytest tests/
         env:
           PYTHONPATH: "${{ github.workspace }}"
+          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
 
   deploy:
     needs: test
@@ -58,9 +63,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/myrag-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
 
-
       - name: Deploy with Docker Compose
-        run: docker-compose up -d
-
-    env:
-      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+        run: docker-compose up -d --remove-orphans --force-recreate
+        env:
+          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
