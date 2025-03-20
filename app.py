@@ -21,7 +21,7 @@ st.sidebar.markdown(
 )
 
 # ✅ Backend URL (Docker)
-BACKEND_URL = "http://localhost:5000/predict"
+BACKEND_URL = "http://backend:5000/predict"
 
 st.subheader("💬 Ask Your Question:")
 user_input = st.text_input("Type your question here...")
