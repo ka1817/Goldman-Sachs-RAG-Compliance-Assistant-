@@ -4,9 +4,11 @@ FROM python:3.9-slim
 # Set working directory
 WORKDIR /app
 
-# Copy only necessary files
-COPY requirements.txt . 
-COPY main.py .
+# Copy project files into the container
+COPY requirements.txt .  
+COPY main.py .  
+COPY faiss_index/ faiss_index/  
+COPY data/ data/  
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
