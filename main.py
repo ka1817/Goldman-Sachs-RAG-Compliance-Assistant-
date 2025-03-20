@@ -92,7 +92,6 @@ def rerank_documents(query: str, retrieved_docs: List[Document]) -> List[Documen
 from langchain_groq import ChatGroq
 llm = ChatGroq(api_key=GROQ_API_KEY, model='llama-3.3-70b-versatile')
 
-# ✅ Define RAG Prompt
 rag_prompt = PromptTemplate(
     input_variables=["context", "question"],
     template="""You are a helpful AI support assistant for Goldman Sachs, providing accurate and reliable information 

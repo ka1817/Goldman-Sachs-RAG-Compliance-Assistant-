@@ -1,69 +1,58 @@
-name: Deploy RAG App
+name: CI Pipeline for RAG App
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
+    name: 🧪 Run Tests (No Backend)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 🛎 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: 🐍 Set Up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
-      - name: Install Dependencies
+      - name: 📦 Install Dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set Environment Variables
-        run: echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> $GITHUB_ENV
-
-      - name: Start Backend
-        run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
-          sleep 5  # Wait for the backend to start
-        env:
-          PYTHONPATH: "${{ github.workspace }}"
-          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
-
-      - name: Run Tests
+      - name: 🧪 Run Tests (Only GET Requests)
         run: pytest tests/
-        env:
-          PYTHONPATH: "${{ github.workspace }}"
-          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
 
-  deploy:
+  docker_build:
+    name: 🏗 Build & Push Docker Images
     needs: test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 🛎 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Docker
+      - name: 🛠 Set Up Docker
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to DockerHub
+      - name: 🔑 Log in to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build and Push Docker Images
+      - name: 📦 Build & Push Backend Image
         run: |
           docker build -t myrag-backend -f backend.Dockerfile .
-          docker build -t myrag-frontend -f frontend.Dockerfile .
           docker tag myrag-backend ${{ secrets.DOCKER_USERNAME }}/myrag-backend:latest
-          docker tag myrag-frontend ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/myrag-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
 
-      - name: Deploy with Docker Compose
-        run: docker-compose up -d --remove-orphans --force-recreate
-        env:
-          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+      - name: 📦 Build & Push Frontend Image
+        run: |
+          docker build -t myrag-frontend -f frontend.Dockerfile .
+          docker tag myrag-frontend ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest

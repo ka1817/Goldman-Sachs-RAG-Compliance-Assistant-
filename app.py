@@ -5,7 +5,6 @@ st.set_page_config(page_title="Goldman Sachs RAG Compliance Assistant", page_ico
 st.title("🤖 Goldman Sachs RAG-based Compliance Assistant")
 st.write("Ask about compliance policies, ethical trading, and more!")
 
-# Sidebar Details
 st.sidebar.title("📌 Project Details")
 st.sidebar.markdown(
     """
