@@ -88,7 +88,7 @@ def rerank_documents(query: str, retrieved_docs: List[Document]) -> List[Documen
     sorted_docs = [doc for _, doc in sorted(zip(scores, retrieved_docs), key=lambda x: x[0], reverse=True)]
     return sorted_docs
 
-# ✅ Load LLM
+# Load LLM
 from langchain_groq import ChatGroq
 llm = ChatGroq(api_key=GROQ_API_KEY, model='llama-3.3-70b-versatile')
 
