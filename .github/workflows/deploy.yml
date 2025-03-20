@@ -1,4 +1,4 @@
-name: CI Pipeline for RAG App
+name: CI/CD Pipeline for RAG App
 
 on:
   push:
@@ -27,8 +27,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🔧 Set Python Path
-        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+      - name: 🔧 Set Environment Variables
+        run: |
+          echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+          echo "GROQ_API_KEY=dummy-key" >> $GITHUB_ENV  # Prevents GroqError
 
       - name: 🧪 Run Tests
         run: pytest tests/
@@ -61,3 +63,28 @@ jobs:
           docker build -t myrag-frontend -f frontend.Dockerfile .
           docker tag myrag-frontend ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
+
+  deploy:
+    name: 🚀 Deploy with Docker Compose
+    needs: docker_build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🛠 Set Up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Log in to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: 📥 Pull Latest Docker Images
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/myrag-backend:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/myrag-frontend:latest
+
+      - name: 🚀 Deploy with Docker Compose
+        run: docker-compose up -d --remove-orphans --force-recreate
+        env:
+          GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
