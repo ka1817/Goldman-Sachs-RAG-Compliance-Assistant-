@@ -3,7 +3,7 @@ name: Deploy RAG Compliance Assistant
 on:
   push:
     branches:
-      - main  # Runs on pushes to the main branch
+      - main  
 
 jobs:
   build-and-push:

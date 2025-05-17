@@ -20,7 +20,6 @@ st.sidebar.markdown(
     """
 )
 
-# ✅ Backend URL (Docker)
 BACKEND_URL = "http://backend:5000/predict"
 
 

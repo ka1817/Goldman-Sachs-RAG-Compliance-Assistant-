@@ -1,89 +1,157 @@
-## Intelligent Policy & Compliance Assistant: A RAG-Based Knowledge System for Goldman Sachs 
+## A Retrieval-Augmented Generation (RAG) system designed to assist with intelligent policy and compliance queries at Goldman Sachs.
 
-📜 Goldman Sachs RAG-Based Compliance Assistant
-A Retrieval-Augmented Generation (RAG) system for intelligent policy and compliance assistance at Goldman Sachs.
+---
 
-🔹 Problem Statement
-Goldman Sachs manages extensive policy documents, including compliance guidelines, ethical codes, and governance frameworks. Manually searching these documents is time-consuming and inefficient.
+## 📜 Problem Statement
 
-Challenge:
+Goldman Sachs manages an extensive collection of policy documents, including compliance guidelines, ethical codes, and governance frameworks. Manually searching through these documents is inefficient and prone to human error.
 
-Employees struggle to quickly retrieve relevant policies.
-Compliance risks arise due to misinterpretation or outdated information.
-Manual search methods reduce operational efficiency.
+### Challenges:
 
-Solution:
-We built a RAG-based AI assistant that:
-✅ Retrieves relevant policy sections using advanced search (BM25 + FAISS).
-✅ Generates accurate, compliance-friendly responses using LLMs.
-✅ Ensures transparency by citing source documents.
+* Difficulty in retrieving relevant policies promptly.
+* Compliance risks due to misinterpretation or outdated information.
+* Reduced operational efficiency due to manual searches.
 
-🚀 Key Features
+---
 
-Hybrid Retrieval: Combines FAISS (dense embeddings) and BM25 (keyword-based) for optimal document search.
-LLM Integration: Uses LLAMA 3-70B for response generation.
-Reranking: Implements Cross-Encoder re-ranking for improved accuracy.
-Secure & Scalable: Deployed via FastAPI + Docker + Streamlit UI.
-Real-Time Querying: Instant responses for compliance and governance questions.
+## 🚀 Solution
 
+An AI-powered Compliance Assistant that:
 
+* ✅ Retrieves policy sections using **hybrid search (BM25 + FAISS)**
+* ✅ Generates compliance-safe responses using **LLMs**
+* ✅ Automates CI/CD using **GitHub Actions** to build and push Docker images to Docker Hub
+* ✅ Deployed on **AWS EC2** for scalability and availability
 
-🛠️ Technologies Used
-Retrieval System: FAISS (vector search), BM25 (keyword retrieval)
-LLM Processing: LangChain + Hugging Face + LLAMA-3-70B
-Reranking: CrossEncoder (ms-marco-MiniLM-L-2-v2)
-Backend: FastAPI
-Frontend: Streamlit
-Deployment: Docker + Compose
+---
 
+## 🔧 Key Features
 
-💡 How It Works?
-1️⃣ User enters a question (e.g., "What is Goldman Sachs’ policy on conflicts of interest?").
-2️⃣ System retrieves relevant document sections from compliance PDFs using FAISS + BM25.
-3️⃣ Documents are re-ranked using a Cross-Encoder model.
-4️⃣ LLM generates an answer based only on retrieved context.
-5️⃣ User receives a clear, source-backed response.
+* **Hybrid Retrieval:** BM25 (keyword-based) + FAISS (vector search)
+* **LLM Integration:** Uses **LLAMA 3-70B** for response generation
+* **Re-ranking:** Enhanced accuracy using **Cross-Encoder (ms-marco-MiniLM-L-2-v2)**
+* **Secure & Scalable:** Backend with **FastAPI**, frontend via **Streamlit**, containerized with **Docker**
+* **Real-Time Responses:** Instant answers for compliance and governance queries
 
-📖 Supported Queries
+---
 
-✅ Compliance & Ethics – Insider trading, bribery, conflict of interest.
-✅ Corporate Governance – Proxy voting, board responsibilities.
-✅ Political Policies – Lobbying, campaign contributions.
-✅ Employee Conduct – Workplace ethics, reporting violations.
+## 🛠️ Technologies Used
 
+| Component     | Technology                          |
+| ------------- | ----------------------------------- |
+| Retrieval     | FAISS, BM25                         |
+| LLM Framework | LangChain, HuggingFace, LLAMA-3-70B |
+| Re-ranking    | CrossEncoder (MiniLM-L-2-v2)        |
+| Backend       | FastAPI                             |
+| Frontend      | Streamlit                           |
+| Deployment    | Docker, Docker Compose              |
+| CI/CD         | GitHub Actions + Docker Hub         |
 
-🔐 Security & Compliance
+---
 
-✅ No Hallucinations: AI only generates responses from retrieved document excerpts.
-✅ Source Citations: Every response includes references to official Goldman Sachs policies.
-✅ Data Privacy: The system does not store user queries or responses.
+## 📂 Project Structure
 
+```
+.
+├── .github/workflows       # GitHub Actions workflows
+├── Research                # Research documents/scripts
+├── __pycache__            # Python cache
+├── data                   # Compliance PDFs
+├── faiss_index            # FAISS vector index
+├── .dockerignore          # Docker ignore config
+├── .gitignore             # Git ignore config
+├── Readme.md              # Project documentation
+├── app.py                 # FastAPI backend
+├── backend.Dockerfile     # Backend Dockerfile
+├── docker-compose.yml     # Docker Compose file
+├── frontend.Dockerfile    # Frontend Dockerfile
+├── main.py                # Entry point / coordinator
+├── requirements.txt       # Python dependencies
+```
 
+---
 
-⚙️ Deployment Using Docker (Recommended)
-You can quickly set up the application using pre-built Docker images.
+## ⚙️ Deployment (Using Docker)
 
-1️⃣ Clone the Repository
+### 1. Clone the Repository
 
-Copy code
+```bash
 git clone https://github.com/ka1817/Goldman-Sachs-RAG-Compliance-Assistant-.git
 cd Goldman-Sachs-RAG-Compliance-Assistant-
+```
 
-2️⃣ Set Environment Variables
-Create a .env file in the root directory and add the following:
+### 2. Set Environment Variables
 
-Copy code
+Create a `.env` file in the root directory:
+
+```dotenv
 GROQ_API_KEY="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"
 DOCKER_USERNAME="pranavreddy123"
+```
 
-3️⃣ Run Docker Compose
+### 3. Run Docker Compose
 
-Copy code
+```bash
 docker-compose up -d
+```
+
 This will:
-✅ Start the backend (FastAPI) on port 5000
-✅ Start the frontend (Streamlit UI) on port 8501
 
+* ▶️ Start the **backend** (FastAPI) on port **5000**
+* ▶️ Start the **frontend** (Streamlit) on port **8501**
 
-📩 Contact 
-👨‍💻 Developer: Katta Sai Pranav Reddy | kattapranavreddy@gmail.com
+---
+
+## 🌌 Deployment on AWS EC2
+
+### Prerequisites
+
+* AWS EC2 Instance (Ubuntu)
+* Docker and Docker Compose installed
+
+### Steps:
+
+1. **SSH into EC2**
+
+```bash
+ssh -i "your-key.pem" ubuntu@your-ec2-public-ip
+```
+
+2. **Clone the Repository**
+
+```bash
+git clone https://github.com/ka1817/Goldman-Sachs-RAG-Compliance-Assistant-.git
+cd Goldman-Sachs-RAG-Compliance-Assistant-
+```
+
+3. **Set Environment Variables**
+
+```bash
+echo "GROQ_API_KEY=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" >> .env
+echo "DOCKER_USERNAME=pranavreddy123" >> .env
+```
+
+4. **Start Services**
+
+```bash
+docker-compose up -d
+```
+
+5. **Access App**
+
+* Backend: `http://your-ec2-public-ip:5000`
+* Frontend: `http://your-ec2-public-ip:8501`
+
+---
+
+## 📩 Contact
+
+**Developer:** Katta Sai Pranav Reddy
+**Email:** [kattapranavreddy@gmail.com](mailto:kattapranavreddy@gmail.com)
+
+---
+
+## 🔗 GitHub Repository
+
+[https://github.com/ka1817/Goldman-Sachs-RAG-Compliance-Assistant-](https://github.com/ka1817/Goldman-Sachs-RAG-Compliance-Assistant-)
+

@@ -17,39 +17,31 @@ from typing import List
 
 app = FastAPI(title="Intelligent Policy & Compliance Assistant")
 
-# Load environment variables
 load_dotenv()
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 
-# Define paths
 data_folder = "data"
 faiss_index_folder = "faiss_index"
 faiss_index_path = os.path.join(faiss_index_folder, "index.faiss")
 
-# Ensure necessary directories exist
 os.makedirs(data_folder, exist_ok=True)
 os.makedirs(faiss_index_folder, exist_ok=True)
 
-# Load embeddings
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-# Load or create FAISS index
 if os.path.exists(faiss_index_path):
     print("✅ Loading existing FAISS index...")
     faiss_index = FAISS.load_local(faiss_index_folder, embeddings, allow_dangerous_deserialization=True)
 else:
     print("⚠️ No FAISS index found! Rebuilding FAISS index...")
 
-    # Load documents
     loader = DirectoryLoader(data_folder, glob="*.pdf", loader_cls=PyPDFLoader)
     documents = loader.load()
 
     if documents:
-        # Split documents into chunks
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
         chunks = text_splitter.split_documents(documents)
 
-        # Create and save FAISS index
         faiss_index = FAISS.from_documents(chunks, embeddings)
         faiss_index.save_local(faiss_index_folder)
 
@@ -57,22 +49,17 @@ else:
     else:
         print("⚠️ No documents found. FAISS index not created!")
 
-# Load documents and split into chunks 
 loader = DirectoryLoader(data_folder, glob="*.pdf", loader_cls=PyPDFLoader)
 documents = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
 chunks = text_splitter.split_documents(documents)
 
-# ✅ Initialize BM25 Retriever from chunks
 bm25_retriever = BM25Retriever.from_documents(chunks) if chunks else None
 
-# ✅ Initialize dense retriever
 retriever_dense = faiss_index.as_retriever(search_kwargs={"k": 10})
 
-# ✅ Hybrid Retriever (Dense + BM25)
 hybrid_retriever = EnsembleRetriever(retrievers=[retriever_dense, bm25_retriever], weights=[0.5, 0.5]) if bm25_retriever else retriever_dense
 
-# ✅ Initialize reranker model
 reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-2-v2")
 
 def rerank_documents(query: str, retrieved_docs: List[Document]) -> List[Document]:
